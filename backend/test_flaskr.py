@@ -45,6 +45,27 @@ def test_get_questions(self):
         self.assertEqual(response.status_code,200)
         data = json.loads(response.data)
         self.assertEqual(len(data['questions']),10)
+
+def test_add_question(self):
+        res = self.client().post('/questions/add', json=self.new_question)
+        self.assertEqual(res.status_code, 200)
+
+def test_get_question_by_categories(self):
+        res = self.client().get('/categories/1/questions')
+        self.assertEqual(res.status_code, 200)
+
+
+def test_search_questions(self):
+        res = self.client().post('/questions', json=self.search)
+        self.assertEqual(res.status_code, 200)
+
+def test_delete_question(self):
+        res = self.client().delete('/questions/2')
+        data = json.loads(res.data)
+        self.assertEqual(data['message'], 'Question ID 2 has been deleted')
+        self.assertEqual(res.status_code, 200)
+
+
 # Make the tests conveniently executable
 if __name__ == "__main__":
     unittest.main()
