@@ -139,39 +139,73 @@ def create_app(test_config=None):
     }
 
     return jsonify(result)
-  
-
  
-
   
+  @app.route('/quizzes', methods=['POST'])
+  def get_questions_for_quiz():
+    if request.get_json()['quiz_category']['id'] == 0:
+      selection = Question.query.all()
+    else:
+      selection = Question.query.filter_by(category=request.get_json()['quiz_category']['id']).all()
+      questions = list(map(Question.format, selection))
 
-  # '''
-  # @TODO: 
-  # Create a GET endpoint to get questions based on category. 
+    if len(questions) == 0:
+      abort(404)
 
-  # TEST: In the "List" tab / main screen, clicking on one of the 
-  # categories in the left column will cause only questions of that 
-  # category to be shown. 
-  # '''
+    for question in request.get_json()['previous_questions']:
+      questions = list(filter(lambda i: i['id'] != question, questions))
 
+    if questions:
+      question = random.choice(questions)
+    else:
+      question = False
 
-  # '''
-  # @TODO: 
-  # Create a POST endpoint to get questions to play the quiz. 
-  # This endpoint should take category and previous question parameters 
-  # and return a random questions within the given category, 
-  # if provided, and that is not one of the previous questions. 
+    result = {
+      'success': True,
+      'question': question,
+    }
 
-  # TEST: In the "Play" tab, after a user selects "All" or a category,
-  # one question at a time is displayed, the user is allowed to answer
-  # and shown whether they were correct or not. 
-  # '''
+    return jsonify(result)
 
-  # '''
-  # @TODO: 
-  # Create error handlers for all expected errors 
-  # including 404 and 422. 
-  # '''
+  @app.errorhandler(400)
+  def bad_request(error):
+    return jsonify({
+      'success': False,
+      'error': 400,
+      'message': 'Bad Request'
+    }), 400
+
+  @app.errorhandler(401)
+  def access_denied(error):
+    return jsonify({
+      'success': False,
+      'error': 401,
+      'message': 'Not Authorized'
+    }), 401
+
+  @app.errorhandler(404)
+  def not_found(error):
+    return jsonify({
+      'success': False,
+      'error': 404,
+      'message': 'Not Found'
+    }), 404
+
+  @app.errorhandler(405)
+  def method_not_allowed(error):
+    return jsonify({
+      'success': False,
+      'error': 405,
+      'message': 'Method Not Allowed'
+    }), 405
+
+  @app.errorhandler(422)
+  def unprocessable_entity(error):
+    return jsonify({
+      'success': False,
+      'error': 422,
+      'message': 'Unprocessable Entity'
+    }), 422
   
   return app
 

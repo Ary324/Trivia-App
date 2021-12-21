@@ -65,6 +65,11 @@ def test_delete_question(self):
         self.assertEqual(data['message'], 'Question ID 2 has been deleted')
         self.assertEqual(res.status_code, 200)
 
+ 
+def test_post_quiz(self):
+        res = self.client().post('/quizzes', json=self.quiz)
+        self.assertEqual(res.status_code, 200)
+
 
 # Make the tests conveniently executable
 if __name__ == "__main__":
