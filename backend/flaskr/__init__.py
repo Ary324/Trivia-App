@@ -38,7 +38,7 @@ def create_app(test_config=None):
     if cats is None:
       abort(404)
     else:
-      categories = [category.format() for category in cats]
+      categories = {category.id:category.type for category in cats}
 
       return jsonify({
         'categories': categories
