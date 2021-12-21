@@ -40,6 +40,11 @@ def test_get_categories(self):
         data = json.loads(response.data)
         self.assertEqual(len(data['categories']),10)
 
+def test_422_add_question(self):
+        res = self.client().post('/questions/add', json=self.new_question)
+        data = json.loads(res.data)
+        self.assertEqual(res.status_code, 422)
+
 def test_get_questions(self):
         response = self.client().get('/questions')
         self.assertEqual(response.status_code,200)
@@ -64,6 +69,14 @@ def test_delete_question(self):
         data = json.loads(res.data)
         self.assertEqual(data['message'], 'Question ID 2 has been deleted')
         self.assertEqual(res.status_code, 200)
+
+def test_404_get_questions(self):
+        res = self.client().delete('/questions/10000')
+        self.assertEqual(res.status_code, 404)
+
+def test_405_delete_categories(self):
+        res = self.client().delete('/categories')
+        self.assertEqual(res.status_code, 405)
 
  
 def test_post_quiz(self):
