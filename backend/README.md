@@ -48,7 +48,6 @@ The `--reload` flag will detect file changes and restart the server automaticall
 - page number: an optional query string parameter for specifing a page number, returns 10 categories for the specified page.
 
 
-```
 {
   "categories": [
     {
@@ -79,7 +78,7 @@ The `--reload` flag will detect file changes and restart the server automaticall
   "success": true, 
   "total_categories": 6
 }
-```
+
 
 ### GET /questions
 
@@ -131,7 +130,7 @@ The `--reload` flag will detect file changes and restart the server automaticall
   "success": true, 
   "total_questions": 19
 }
-```
+
 
 ### DELETE /questions/`question_id`
 
@@ -139,12 +138,11 @@ The `--reload` flag will detect file changes and restart the server automaticall
 - If the question of the given ID does not exist, error of status code 404 is returned.
 - question id: a required url path parameter for specifing the id of the question to be deleted, id should be an integer
 
-```
 {
   "deleted": 25, 
   "success": true
 }
-```
+
 
 ### POST /questions
 
@@ -152,7 +150,7 @@ The `--reload` flag will detect file changes and restart the server automaticall
 
  "Content-Type: application/json" -d '{"question":"What is colour of Liverpool FC","answer":"Red","difficulty":1,"category":6}'`
 
-```
+ 
 {
   "created": {
     "answer": "Red", 
@@ -163,14 +161,13 @@ The `--reload` flag will detect file changes and restart the server automaticall
   }, 
   "success": true
 }
-```
+ 
 
 - If `search_term` is included in request body, the result of search for questions based on the given search term is returned, which returns a list of matched questions, success value, total number of result, and current category as `null`
 - Error of status code 404 is thrown when there is not question on the given page.
 
  "Content-Type: application/json" -d '{"search_term":"Dutch"}
-
-```
+ 
 {
   "current_category": null, 
   "questions": [
@@ -185,7 +182,7 @@ The `--reload` flag will detect file changes and restart the server automaticall
   "success": true, 
   "total_questions": 1
 }
-```
+ 
 
 ### GET /categories/`category_id`/questions
 
@@ -197,7 +194,7 @@ The `--reload` flag will detect file changes and restart the server automaticall
 - category id: a required url path parameter for specifing the id of the category, id should be an integer
 
 
-```
+ 
 {
   "current_category": 2, 
   "questions": [
@@ -233,7 +230,7 @@ The `--reload` flag will detect file changes and restart the server automaticall
   "success": true, 
   "total_questions": 4
 }
-```
+ 
 
 ### POST /quizzes
 
@@ -244,7 +241,7 @@ The `--reload` flag will detect file changes and restart the server automaticall
  
 "Content-Type: application/json" -d '{"quiz_category":{"type":"Sports","id":6},"previous_questions":[20]}'`
 
-```
+ 
 {
   "question": {
     "answer": "Lionel Messi", 
@@ -255,7 +252,7 @@ The `--reload` flag will detect file changes and restart the server automaticall
   }, 
   "success": true
 }
-```
+ 
 
 
 ## Testing
