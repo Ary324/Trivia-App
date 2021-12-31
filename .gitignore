@@ -5,6 +5,8 @@ env
 venv
 .Python
 env/
+lib/
+bin/
 
 # OS generated files #
 ######################
