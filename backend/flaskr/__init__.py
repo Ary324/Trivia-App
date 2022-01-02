@@ -49,15 +49,17 @@ def create_app(test_config=None):
     current_questions = paginate(request, selection)
     cats = Category.query.all()
     categories = [category.format() for category in cats]
+    formatted_categories = {
+      category.id: category.type for category in categories}
 
     if len(current_questions) == 0:
       abort(404)
 
     return jsonify({
      'questions': current_questions,
-     'categories': categories,
+     'categories': formatted_categories,
      'total_questions': len(selection),
-     'current_catgory': categories,
+     'current_catgory': "",
      'page': request.args.get('page', 1, type=int)
    })
 
@@ -104,7 +106,6 @@ def create_app(test_config=None):
   def search_questions():
     selection = Question.query.filter(Question.question.ilike(f"%{request.get_json()['searchTerm']}%")).all()
     current_questions = paginate(request, selection)
-    categories = Category.query.all()
 
     if len(current_questions) == 0:
       abort(404)
@@ -113,7 +114,7 @@ def create_app(test_config=None):
       'success': True,
       'questions': current_questions,
       'total_questions': len(selection),
-      'categories': categories,
+      'category': request.get_json()['category'],
       'page': request.args.get('page', 1, type=int)
     }
 
@@ -121,9 +122,10 @@ def create_app(test_config=None):
 
   @app.route('/categories/<int:category_id>/questions')
   def get_questions_category(category_id):
+    categories = Category.query.all()
+    category_type = Category.query.get(category_id).format()['type']
     selection = Question.query.filter_by(category=category_id).all()
     current_questions = paginate(request, selection)
-    categories = Category.query.all()
 
     if len(current_questions) == 0:
       abort(404)
@@ -132,8 +134,7 @@ def create_app(test_config=None):
       'success': True,
       'questions': current_questions,
       'total_questions': len(selection),
-      'categories': categories,
-      'current_category': category_id,
+      'current_category': category_type,
       'page': request.args.get('page', 1, type=int)
     }
 
@@ -142,22 +143,21 @@ def create_app(test_config=None):
   
   @app.route('/quizzes', methods=['POST'])
   def get_questions_for_quiz():
+    
     if request.get_json()['quiz_category']['id'] == 0:
-      selection = Question.query.all()
+      questions = Question.query.all()
     else:
       selection = Question.query.filter_by(category=request.get_json()['quiz_category']['id']).all()
       questions = list(map(Question.format, selection))
-
+    
     if len(questions) == 0:
-      abort(404)
+        question = Question("","",None, None).format()
 
     for question in request.get_json()['previous_questions']:
       questions = list(filter(lambda i: i['id'] != question, questions))
 
-    if questions:
-      question = random.choice(questions)
     else:
-      question = False
+      question = random.choice(questions).format()
 
     result = {
       'success': True,

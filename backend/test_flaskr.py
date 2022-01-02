@@ -19,12 +19,6 @@ class TriviaTestCase(unittest.TestCase):
             'localhost:5432', self.database_name)
         setup_db(self.app, self.database_path)
 
-        # binds the app to the current context
-        with self.app.app_context():
-            self.db = SQLAlchemy()
-            self.db.init_app(self.app)
-            # create all tables
-            self.db.create_all()
 
         self.new_question = {
             'question': 'What is my name?',
@@ -43,7 +37,16 @@ class TriviaTestCase(unittest.TestCase):
                 'id': 0
             }
         }
+        
 
+        # binds the app to the current context
+        with self.app.app_context():
+            self.db = SQLAlchemy()
+            self.db.init_app(self.app)
+            # create all tables
+            self.db.create_all()
+
+        
     def tearDown(self):
         """Executed after reach test"""
         pass
@@ -61,6 +64,11 @@ class TriviaTestCase(unittest.TestCase):
         res = self.client().post('/questions/add', json=self.new_question)
         data = json.loads(res.data)
         self.assertEqual(res.status_code, 200)
+
+    def test_404_add_question(self):
+        res = self.client().post('/questions/add', json=self.new_question)
+        data = json.loads(res.data)
+        self.assertEqual(res.status_code, 404)
 
     def test_get_questions(self):
         response = self.client().get('/questions')
@@ -83,9 +91,9 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['message'], 'Question ID 1 has been deleted')
         self.assertEqual(data['success'], True)
 
-    def test_422_get_questions(self):
+    def test_404_get_questions(self):
         res = self.client().delete('/questions/10000')
-        self.assertEqual(res.status_code, 422)
+        self.assertEqual(res.status_code, 404)
 
     def test_405_delete_categories(self):
         res = self.client().delete('/categories')
@@ -94,6 +102,11 @@ class TriviaTestCase(unittest.TestCase):
     def test_post_quiz(self):
         res = self.client().post('/quizzes', json=self.quiz)
         self.assertEqual(res.status_code, 200)
+    
+    def test_post_quizzes_error(self):
+        res = self.client().post('/quizzes', json=self.quiz)
+        data = json.loads(res.data)
+        self.assertEqual(res.status_code, 422)
 
 
 # Make the tests conveniently executable
