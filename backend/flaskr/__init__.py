@@ -87,10 +87,6 @@ def create_app(test_config=None):
       'difficulty': request.get_json()['difficulty']
     }
 
-    check_for_duplicate = Question.query.filter(Question.question == data['question']).all()
-    if len(check_for_duplicate) > 0:
-      abort(422)
-
     if data['question'] == 0 or data['answer'] == 0 \
       or data['difficulty'] == 0 or data['category'] == 0:
       abort(422)

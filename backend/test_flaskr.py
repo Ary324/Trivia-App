@@ -92,7 +92,7 @@ class TriviaTestCase(unittest.TestCase):
 
     def test_search_questions(self):
         res = self.client().post('/questions', json={"searchTerm": "title"})
-        data = json.loads(res.data)
+        data = json.loads(res.data.decode('utf-8'))
         self.assertEqual(data['success'], True)
         self.assertTrue(data['questions'])
         self.assertTrue(data['total_questions'])
@@ -124,7 +124,7 @@ class TriviaTestCase(unittest.TestCase):
             }
         }
         res = self.client().post('/quizzes', json=error_data)
-        data = json.loads(res.data)
+        data = json.loads(res.data.decode('utf-8'))
         self.assertEqual(res.status_code, 422)
 
 
