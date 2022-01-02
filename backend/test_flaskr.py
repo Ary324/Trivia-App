@@ -48,7 +48,7 @@ class TriviaTestCase(unittest.TestCase):
 
         
     def tearDown(self):
-        """Executed after reach test"""
+        """Executed after each test"""
         pass
 
     """
@@ -65,16 +65,26 @@ class TriviaTestCase(unittest.TestCase):
         data = json.loads(res.data)
         self.assertEqual(res.status_code, 200)
 
-    def test_404_add_question(self):
-        res = self.client().post('/questions/add', json=self.new_question)
-        data = json.loads(res.data)
-        self.assertEqual(res.status_code, 404)
+    def test_422_add_question(self):
+       bad_question = {
+           'question': 'What is the difference between orange and blue?',
+           'category': 4,
+           'answer': '',
+           'difficulty': 2,
+       }
+
+       res = self.client().post('/questions/add', json=bad_question)
+       data = json.loads(res.data)
+
+       self.assertEqual(data['success'], False)
+       self.assertEqual(data['error'], 422)
 
     def test_get_questions(self):
         response = self.client().get('/questions')
-        self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
-        self.assertEqual(len(data['questions']), 10)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertTrue(len(data['categories']))
 
 
     def test_get_question_by_categories(self):
@@ -82,8 +92,11 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
 
     def test_search_questions(self):
-        res = self.client().post('/questions', json=self.search)
-        self.assertEqual(res.status_code, 200)
+        res = self.client().post('/questions', json={"searchTerm": "title"})
+        data = json.loads(res.data)
+        self.assertEqual(data['success'], True)
+        self.assertTrue(data['questions'])
+        self.assertTrue(data['total_questions'])
 
     def test_delete_question(self):
         res = self.client().delete('/questions/1')
@@ -104,7 +117,14 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
     
     def test_post_quizzes_error(self):
-        res = self.client().post('/quizzes', json=self.quiz)
+        error_data = {
+            'previous_questions':[0, 0],
+            'quiz_category': {
+                'id': '',
+                'type': ''
+            }
+        }
+        res = self.client().post('/quizzes', json=error_data)
         data = json.loads(res.data)
         self.assertEqual(res.status_code, 422)
 

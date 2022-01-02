@@ -49,15 +49,13 @@ def create_app(test_config=None):
     current_questions = paginate(request, selection)
     cats = Category.query.all()
     categories = [category.format() for category in cats]
-    formatted_categories = {
-      category.id: category.type for category in categories}
 
     if len(current_questions) == 0:
       abort(404)
 
     return jsonify({
      'questions': current_questions,
-     'categories': formatted_categories,
+     'categories': categories,
      'total_questions': len(selection),
      'current_catgory': "",
      'page': request.args.get('page', 1, type=int)
@@ -91,6 +89,10 @@ def create_app(test_config=None):
 
     check_for_duplicate = Question.query.filter(Question.question == data['question']).all()
     if len(check_for_duplicate) > 0:
+      abort(422)
+
+    if data['question'] == 0 or data['answer'] == 0 \
+      or data['difficulty'] == 0 or data['category'] == 0:
       abort(422)
 
     question = Question(**data)
@@ -145,23 +147,22 @@ def create_app(test_config=None):
   def get_questions_for_quiz():
     
     if request.get_json()['quiz_category']['id'] == 0:
-      questions = Question.query.all()
+      selection = Question.query.all()
     else:
       selection = Question.query.filter_by(category=request.get_json()['quiz_category']['id']).all()
-      questions = list(map(Question.format, selection))
+    questions = list(map(Question.format, selection))
     
     if len(questions) == 0:
         question = Question("","",None, None).format()
 
-    for question in request.get_json()['previous_questions']:
-      questions = list(filter(lambda i: i['id'] != question, questions))
-
+    if questions:
+      question = random.choice(questions)
     else:
-      question = random.choice(questions).format()
+      question = False 
 
     result = {
       'success': True,
-      'question': question,
+      'question': question
     }
 
     return jsonify(result)
