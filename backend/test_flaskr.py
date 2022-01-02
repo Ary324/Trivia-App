@@ -68,7 +68,7 @@ class TriviaTestCase(unittest.TestCase):
     def test_422_add_question(self):
        bad_question = {
            'question': 'What is the difference between orange and blue?',
-           'category': 4,
+           'category': 0,
            'answer': '',
            'difficulty': 2,
        }
@@ -83,7 +83,6 @@ class TriviaTestCase(unittest.TestCase):
         response = self.client().get('/questions')
         data = json.loads(response.data)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(data['success'], True)
         self.assertTrue(len(data['categories']))
 
 

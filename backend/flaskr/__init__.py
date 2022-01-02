@@ -106,16 +106,20 @@ def create_app(test_config=None):
 
   @app.route('/questions', methods=['POST'])
   def search_questions():
-    selection = Question.query.filter(Question.question.ilike(f"%{request.get_json()['searchTerm']}%")).all()
-    current_questions = paginate(request, selection)
+    body = request.get_json()
+    search_term = body.get('searchTerm', None)
 
-    if len(current_questions) == 0:
-      abort(404)
+    if search_term:
+      search_results = Question.query.filter(
+      Question.question.ilike(f'%{search_term}%')).all()
 
     result = {
       'success': True,
-      'questions': current_questions,
-      'total_questions': len(selection),
+      'questions': [
+        question.format() for question in search_results
+      ],
+      'total_questions': len(search_results),
+      'current_category': None,
       'category': request.get_json()['category'],
       'page': request.args.get('page', 1, type=int)
     }
@@ -145,6 +149,10 @@ def create_app(test_config=None):
   
   @app.route('/quizzes', methods=['POST'])
   def get_questions_for_quiz():
+
+    body = request.get_json()
+    previous = body.get('previous_questions')
+    category = body.get('quiz_category')
     
     if request.get_json()['quiz_category']['id'] == 0:
       selection = Question.query.all()
@@ -155,10 +163,25 @@ def create_app(test_config=None):
     if len(questions) == 0:
         question = Question("","",None, None).format()
 
-    if questions:
+    def check_if_used(question):
+      used = False
+      for q in previous:
+        if (q == question.id):
+          used = True
+
+      return used
+
+    question = random.choice(questions)
+
+    while (check_if_used(question)):
       question = random.choice(questions)
-    else:
-      question = False 
+
+      if (len(previous) == len(questions)):
+        return jsonify({
+          'success': True
+        })
+
+
 
     result = {
       'success': True,
